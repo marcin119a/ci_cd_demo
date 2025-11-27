@@ -27,7 +27,20 @@ jobs:
       run: |
         python - << 'EOF'
         import requests
-        print("OK – dependencies installed")
+        import subprocess
+        import time
+        
+        # Start server
+        server = subprocess.Popen(["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"])
+        time.sleep(3)  # Wait for server to start
+        
+        # Test endpoint
+        response = requests.get("http://127.0.0.1:8000/")
+        assert response.status_code == 200
+        assert response.json()["message"] == "Hello World from FastAPI!"
+        
+        server.terminate()
+        print("✓ API test passed")
         EOF
 
   docker-build-push:
